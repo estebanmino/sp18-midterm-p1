@@ -11,16 +11,17 @@ import './interfaces/ERC20Interface.sol';
 contract Token is ERC20Interface {
 
     uint256 constant private MAX_UINT256 = 2**256 - 1;   // Overflow
-    string name;
+    string public name;
     string symbol;
     uint totalSupply;
 
     mapping(address => uint) balances;
     mapping (address => mapping (address => uint)) allowed;
 
-    function Token () public {
-        balances[msg.sender] = 1000; // give the total amount of tokens to the creator
-        totalSupply = 1000;
+    function Token (uint _totalSupply) public {
+        balances[msg.sender] = _totalSupply; // give the total amount of tokens to the creator
+        totalSupply = _totalSupply;
+        name = "name";
     }
 
     // MUST trigger when tokens are transferred, including zero value transfers.
@@ -84,6 +85,11 @@ contract Token is ERC20Interface {
         balances[msg.sender] -= _value;
         Burned(msg.sender, _value);
         return true;
+    }
+
+    function mintTokens(uint _mintedAmount) public {
+        balances[msg.sender] += _mintedAmount;
+        totalSupply += _mintedAmount;
     }
 
 }

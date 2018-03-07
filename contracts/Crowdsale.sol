@@ -10,5 +10,26 @@ import './Token.sol';
  */
 
 contract Crowdsale {
-	// YOUR CODE HERE
+
+    address owner;
+    Queue queue;
+    Token token;
+
+    function Crowdsale() public {
+        owner = msg.sender;
+        queue = new Queue();
+    }
+
+    event TokenDeployed(uint _totalSupply, address _token);
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function deployToken(uint _totalSupply) public onlyOwner() {
+        token = new Token(_totalSupply);
+        TokenDeployed(_totalSupply, token);
+    }
+
 }
