@@ -1,0 +1,150 @@
+{
+  "contractName": "Crowdsale",
+  "abi": [],
+  "bytecode": "0x60606040523415600e57600080fd5b603580601b6000396000f3006060604052600080fd00a165627a7a723058201bf885d16633319eab26c925738abb000f86ef44a41ac4ee3679f1b68c7f6f5a0029",
+  "deployedBytecode": "0x6060604052600080fd00a165627a7a723058201bf885d16633319eab26c925738abb000f86ef44a41ac4ee3679f1b68c7f6f5a0029",
+  "sourceMap": "213:41:0:-;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "213:41:0:-;;;;;",
+  "source": "pragma solidity ^0.4.15;\n\nimport './Queue.sol';\nimport './Token.sol';\n\n/**\n * @title Crowdsale\n * @dev Contract that deploys `Token.sol`\n * Is timelocked, manages buyer queue, updates balances on `Token.sol`\n */\n\ncontract Crowdsale {\n\t// YOUR CODE HERE\n}\n",
+  "sourcePath": "/mnt/c/Users/esteb/Documents/BaB/BlockchainForDevelopers/sp18-midterm-p1/contracts/Crowdsale.sol",
+  "ast": {
+    "attributes": {
+      "absolutePath": "/mnt/c/Users/esteb/Documents/BaB/BlockchainForDevelopers/sp18-midterm-p1/contracts/Crowdsale.sol",
+      "exportedSymbols": {
+        "Crowdsale": [
+          4
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "^",
+            "0.4",
+            ".15"
+          ]
+        },
+        "id": 1,
+        "name": "PragmaDirective",
+        "src": "0:24:0"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 268,
+          "absolutePath": "/mnt/c/Users/esteb/Documents/BaB/BlockchainForDevelopers/sp18-midterm-p1/contracts/Queue.sol",
+          "file": "./Queue.sol",
+          "scope": 5,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 2,
+        "name": "ImportDirective",
+        "src": "26:21:0"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 544,
+          "absolutePath": "/mnt/c/Users/esteb/Documents/BaB/BlockchainForDevelopers/sp18-midterm-p1/contracts/Token.sol",
+          "file": "./Token.sol",
+          "scope": 5,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 3,
+        "name": "ImportDirective",
+        "src": "48:21:0"
+      },
+      {
+        "attributes": {
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "contract",
+          "documentation": "@title Crowdsale\n@dev Contract that deploys `Token.sol`\nIs timelocked, manages buyer queue, updates balances on `Token.sol`",
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            4
+          ],
+          "name": "Crowdsale",
+          "nodes": [
+            null
+          ],
+          "scope": 5
+        },
+        "id": 4,
+        "name": "ContractDefinition",
+        "src": "213:41:0"
+      }
+    ],
+    "id": 5,
+    "name": "SourceUnit",
+    "src": "0:255:0"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.19+commit.c4cbbb05.Emscripten.clang"
+  },
+  "networks": {
+    "1520445738475": {
+      "events": {},
+      "links": {},
+      "address": "0x599a17f353f88016555d50683aaa0b38a9b4c55b"
+    },
+    "1520446107042": {
+      "events": {},
+      "links": {},
+      "address": "0x1d87ed225070ddc1817420e8d1df0c9f97ba40e2"
+    },
+    "1520446160282": {
+      "events": {},
+      "links": {},
+      "address": "0x1418f09cd3e6bcdf3c492c0be919f636b820eb6f"
+    },
+    "1520446216304": {
+      "events": {},
+      "links": {},
+      "address": "0x0d2f8f71cd2d7fdd33c56497dc6abe26d2a87f71"
+    },
+    "1520446263562": {
+      "events": {},
+      "links": {},
+      "address": "0xa3109ab1be5991dccd2ce9c5e30c1b74938af718"
+    },
+    "1520447356708": {
+      "events": {},
+      "links": {},
+      "address": "0x5e4962f2899de7ef8ef3af624f18e5b331f91eec"
+    },
+    "1520447507197": {
+      "events": {},
+      "links": {},
+      "address": "0x7496971ead13f4e0f8121be485518e963ef9b3c2"
+    },
+    "1520447794880": {
+      "events": {},
+      "links": {},
+      "address": "0x4efb98160089d16b623719af924e949227283386"
+    },
+    "1520448159488": {
+      "events": {},
+      "links": {},
+      "address": "0xa041ec9545e68086a5f9c3a7796bce0e33fd79df"
+    },
+    "1520448301260": {
+      "events": {},
+      "links": {},
+      "address": "0xdee1f03e31e243c8b0e23f0495daf97f950bf5c4"
+    }
+  },
+  "schemaVersion": "1.0.1",
+  "updatedAt": "2018-03-07T18:45:25.224Z"
+}

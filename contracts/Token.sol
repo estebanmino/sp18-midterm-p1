@@ -18,15 +18,9 @@ contract Token is ERC20Interface {
     mapping(address => uint) balances;
     mapping (address => mapping (address => uint)) allowed;
 
-    function Token (
-        uint256 _totalSupply,
-        string _tokenName,
-        string _tokenSymbol
-    ) public {
-        balances[msg.sender] = _totalSupply; // give the total amount of tokens to the creator
-        totalSupply = _totalSupply;
-        name = _tokenName;
-        symbol = _tokenSymbol;
+    function Token () public {
+        balances[msg.sender] = 1000; // give the total amount of tokens to the creator
+        totalSupply = 1000;
     }
 
     // MUST trigger when tokens are transferred, including zero value transfers.

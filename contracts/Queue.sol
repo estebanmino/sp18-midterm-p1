@@ -10,69 +10,86 @@ pragma solidity ^0.4.15;
 contract Queue {
     /* State variables */
     uint8 size = 5;
-    uint8 queueSize = 0;
     address[] queue;
-    uint timeLimit; // minutes
-    uint lastHeadTime = 0 * 1 minutes;
-    // YOUR CODE HERE
+    uint timeLimit = 1 * 1 minutes; // minutes
+    uint lastHeadTime;
+    uint8 front;
+    uint8 back;
 
     /* Add events */
-    // YOUR CODE HERE
+    event Enqueue(address adr, uint pos);
+    event Dequeue(address adr);
+    event LastTimeUpdated();
+    event CheckTime(uint from);
 
     /* Add constructor */
-    // YOUR CODE HERE
-    function Queue(uint _timeLimit, address[] _queue) public {
-        timeLimit = _timeLimit * 1 minutes;
-        queue = _queue;
+    function Queue() public {
+        queue = new address[](0);
+        front = 0;
+        back = 0;
     }
 
     /* Returns the number of people waiting in line */
-    function qsize() constant returns(uint8) {
-        return queueSize;
+    function qsize() public constant returns(uint8) {
+        if (back == front) {
+            return 0;
+        } else {
+            return back-front;
+        }
     }
 
     /* Returns whether the queue is empty or not */
-    function empty() constant returns(bool) {
-        return queueSize == 0;
+    function empty() public constant returns(bool) {
+        return qsize() == 0;
     }
 
     /* Returns the address of the person in the front of the queue */
-    function getFirst() constant returns(address) {
-        return queue[0];
+    function getFirst() public constant returns(address) {
+        if (empty()) {
+            return 0;
+        }
+        return queue[front];
     }
 
     /* Allows `msg.sender` to check their position in the queue */
-    function checkPlace() constant returns(uint8) {
-        for (uint8 i = 0; i < queueSize; i++) {
+    function checkPlace() public constant returns(uint8) {
+        for (uint8 i = front; i < qsize() + front; i++) {
             if (msg.sender == queue[i]) {
-                return i;
+                return i+1-front;
             }
         }
+        return 0;
     }
 
     /* Allows anyone to expel the first person in line if their time
         * limit is up
         */
-    function checkTime() { 
-        require(timeLimit < lastHeadTime);
+    function checkTime() public { 
+        require(!empty() && timeLimit < now - lastHeadTime);
+        CheckTime(now - lastHeadTime);
         dequeue();
     }
 
     /* Removes the first person in line; either when their time is up or when
         * they are done with their purchase
         */
-    function dequeue() {
-        address[] memory newQueue = new address[](5);
-        for (uint8 i = 1; i < 5; i++) {
-            newQueue[i-1] = queue[i];
-        }
-        queue = newQueue;
+    function dequeue() public {
+        require(!empty());
+        Dequeue(queue[front]);
+        delete queue[front];
+        front += 1;
+        lastHeadTime = now;
+        LastTimeUpdated();
     }
 
     /* Places `addr` in the first empty position in the queue */
-    function enqueue(address addr) {
-        require(queueSize < 5);
+    function enqueue(address addr) public {
+        require(qsize() < 5);
+        back += 1;
         queue.push(addr);
-        queueSize += 1;
+        if (empty()) {
+            lastHeadTime = now;
+        }
+        Enqueue(addr, qsize());
     }
 }
