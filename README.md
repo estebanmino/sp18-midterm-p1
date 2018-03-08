@@ -5,7 +5,7 @@ Welcome to the Blockchain for Developers DeCal's midterm assignment. You'll be d
 
 ###### Project Partner 1
 
-Name:
+Name: Esteban Mino
 
 SID:
 
@@ -13,7 +13,7 @@ Email:
 
 ###### Project Partner 2
 
-Name:
+Name: Ann Snitko
 
 SID:
 
@@ -21,11 +21,11 @@ Email:
 
 ###### Project Partner 3 (if any)
 
-Name:
+Name: George Su
 
-SID:
+SID: 23796459
 
-Email:
+Email: georgesu1074@berkeley.edu
 
 ## Midterm Instructions
 

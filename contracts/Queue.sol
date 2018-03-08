@@ -88,7 +88,7 @@ contract Queue {
 
     /* Places `addr` in the first empty position in the queue */
     function enqueue(address addr) public returns (bool) {
-        require(qsize() < 5);
+        require(qsize() <= size);
         back += 1;
         queue.push(addr);
         if (empty()) {

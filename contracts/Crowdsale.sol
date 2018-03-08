@@ -73,6 +73,7 @@ contract Crowdsale {
         amountToBuy[msg.sender] = msg.value / pricePerWei;
         uint place = queue.checkPlace();
         balance += msg.value;
+        tokensSold += amountToBuy[msg.sender]; // wrote code to increment tokensSold
         // if first in queue, empty queue
         if (place == 2 && !queue.checkTime()) {
             // if second in queue
@@ -84,5 +85,9 @@ contract Crowdsale {
 
     function getTokenSupply() public returns (uint) {
         return token.getTotalSupply();
+    }
+
+    function getTokensSold() public returns (uint) {
+    	return tokensSold;
     }
 }
