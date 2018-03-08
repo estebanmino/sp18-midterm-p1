@@ -92,5 +92,9 @@ contract Token is ERC20Interface {
         totalSupply += _mintedAmount;
     }
 
+    function getTotalSupply() public returns (uint) {
+        return totalSupply;
+    }
+
 }
  

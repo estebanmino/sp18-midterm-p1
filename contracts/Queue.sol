@@ -63,11 +63,13 @@ contract Queue {
 
     /* Allows anyone to expel the first person in line if their time
         * limit is up
+        * returns true if dequeue() is executed
         */
-    function checkTime() public { 
+    function checkTime() public returns (bool) { 
         require(!empty() && timeLimit < now - lastHeadTime);
         CheckTime(now - lastHeadTime);
         dequeue();
+        return true;
     }
 
     /* Removes the first person in line; either when their time is up or when
@@ -78,12 +80,14 @@ contract Queue {
         Dequeue(queue[front]);
         delete queue[front];
         front += 1;
-        lastHeadTime = now;
+        if (!empty()) {
+            lastHeadTime = now;
+        }
         LastTimeUpdated();
     }
 
     /* Places `addr` in the first empty position in the queue */
-    function enqueue(address addr) public {
+    function enqueue(address addr) public returns (bool) {
         require(qsize() < 5);
         back += 1;
         queue.push(addr);
@@ -91,5 +95,6 @@ contract Queue {
             lastHeadTime = now;
         }
         Enqueue(addr, qsize());
+        return true;
     }
 }
