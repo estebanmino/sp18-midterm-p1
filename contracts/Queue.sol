@@ -21,6 +21,8 @@ contract Queue {
     event Dequeue(address adr);
     event LastTimeUpdated();
     event CheckBlock(uint _blockLimit, uint _currentBlock, uint _lastHeadBlock);
+    event CheckPlace(uint _pos);
+    
 
     /* Add constructor */
     function Queue() public {
@@ -55,9 +57,11 @@ contract Queue {
     function checkPlace(address _address) public constant returns(uint8) {
         for (uint8 i = front; i < qsize() + front; i++) {
             if (_address == queue[i]) {
+                CheckPlace(i+1-front);
                 return i+1-front;
             }
         }
+        CheckPlace(0);
         return 0;
     }
 
