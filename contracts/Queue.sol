@@ -11,8 +11,10 @@ contract Queue {
     /* State variables */
     uint8 size = 5;
     address[] queue;
-    uint blockLimit = 5; // in terms of blocks created
-    uint lastHeadBlock = block.number;
+
+    uint timeLimit = 2 minutes;
+    uint lastHeadTime;
+
     uint8 front;
     uint8 back;
 
@@ -20,8 +22,8 @@ contract Queue {
     event Enqueue(address adr, uint pos);
     event Dequeue(address adr);
     event LastTimeUpdated();
-    event CheckBlock(uint _blockLimit, uint _currentBlock, uint _lastHeadBlock);
     event CheckPlace(uint _pos);
+    event SettingTime(uint _time, bool _empty);
     
 
     /* Add constructor */
@@ -72,13 +74,20 @@ contract Queue {
     // Checktime in terms of blocks created between transactions
     // due to time problems
     function checkTime() public returns (bool) { 
-        CheckBlock(blockLimit, block.number, lastHeadBlock);
-        if (!empty() && blockLimit < block.number - lastHeadBlock) {
+        if (!empty() && timeLimit < now - lastHeadTime) {
             dequeue();
             return true;
         } else {
             return false;
         }
+
+        /* CheckBlock(blockLimit, block.number, lastHeadBlock);
+        if (!empty() && blockLimit < block.number - lastHeadBlock) {
+            dequeue();
+            return true;
+        } else {
+            return false;
+        }*/
     }
 
     /* Removes the first person in line; either when their time is up or when
@@ -90,7 +99,7 @@ contract Queue {
         delete queue[front];
         front += 1;
         if (!empty()) {
-            lastHeadBlock = block.number;
+            lastHeadTime = now;            
         }
         LastTimeUpdated();
     }
@@ -98,11 +107,12 @@ contract Queue {
     /* Places `addr` in the first empty position in the queue */
     function enqueue(address addr) public returns (bool) {
         require(qsize() < 5);
+        SettingTime(now, empty());
+        if (empty()) {
+            lastHeadTime = now;
+        }
         back += 1;
         queue.push(addr);
-        if (empty()) {
-            lastHeadBlock = block.number;
-        }
         Enqueue(addr, qsize());
         return true;
     }

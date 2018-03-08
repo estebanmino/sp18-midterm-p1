@@ -15,11 +15,11 @@ contract Crowdsale {
     Queue queue;
     Token token;
     bool started;
-    uint gapBlock;
+    uint gapTime;
     uint pricePerWei;
     uint balance;
     uint tokensSold;
-    uint initialBlock;
+    uint initialTime;
 
     mapping(address => uint) amountToBuy;
 
@@ -33,11 +33,9 @@ contract Crowdsale {
 
     event TokenDeployed(uint _totalSupply, address _token);
     event BurnTokens(uint _burnedTokens);
-    event BlockGap(uint _initialBlock, uint _lastBlock);
     event MoreThanTwoInQueue(uint _place);
     event TryingToBuyFor(uint _i, uint _amount);
     event DoingTransfer(bool _doingTransfer);
-    event CurrentTime(uint _blockNumber, uint _initialBlock, uint _blockGap);
     event TryingToRefund(address _refundAddress, uint _refundAmount);
     
 
@@ -47,17 +45,17 @@ contract Crowdsale {
     }
 
     modifier saleNotEnded {
-        require(block.number - initialBlock < gapBlock);
+        require(now - initialTime < gapTime);
         _;
     }
 
     modifier saleEnded() {
-        require(block.number - initialBlock > gapBlock);
+        require(now - initialTime > gapTime);
         _;
     }
 
     modifier inSaleTime() {
-        require(block.number - initialBlock < gapBlock && block.number > initialBlock);
+        require(now - initialTime < gapTime && now > initialTime);
         _;
     }
 
@@ -65,13 +63,12 @@ contract Crowdsale {
         return token.totalSupply();
     }
 
-    function deployToken(uint _totalSupply, uint _gapBlock, uint _pricePerWei) public onlyOwner() {
+    function deployToken(uint _totalSupply, uint _gapTime, uint _pricePerWei) public onlyOwner() {
         token = new Token(_totalSupply);
         TokenDeployed(_totalSupply, token);
         started = true;
-        // entime in terms of blocks
-        gapBlock = _gapBlock;
-        initialBlock = block.number;
+        gapTime = _gapTime;
+        initialTime = now;
         pricePerWei = _pricePerWei;
     }
     
@@ -111,7 +108,7 @@ contract Crowdsale {
     // Buyers waiting in line must make sure they are not the last person 
     // in line: you must have someone behind you to place a token 
     
-    function buyTokens() public payable inSaleTime() {
+    function buyTokens() public payable  {
         require(queue.enqueue(msg.sender));
         amountToBuy[msg.sender] = msg.value / pricePerWei;
         uint place = queue.checkPlace(msg.sender);
