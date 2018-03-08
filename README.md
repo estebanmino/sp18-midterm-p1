@@ -7,17 +7,17 @@ Welcome to the Blockchain for Developers DeCal's midterm assignment. You'll be d
 
 Name: Esteban Mino
 
-SID:
+SID: 013111515
 
-Email:
+Email: efmino@berkeley.edu
 
 ###### Project Partner 2
 
 Name: Ann Snitko
 
-SID:
+SID: 013112017
 
-Email:
+Email: ann_snitko@berkeley.edu
 
 ###### Project Partner 3 (if any)
 
