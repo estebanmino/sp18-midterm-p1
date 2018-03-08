@@ -25,7 +25,6 @@ contract Crowdsale {
 
     function Crowdsale() public {
         owner = msg.sender;
-        queue = new Queue();
         started = false;
         balance = 0;
         tokensSold = 0;
@@ -70,6 +69,8 @@ contract Crowdsale {
         gapTime = _gapTime;
         initialTime = now;
         pricePerWei = _pricePerWei;
+        queue = new Queue(_gapTime);
+		
     }
     
     // Creation of new tokens

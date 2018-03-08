@@ -12,7 +12,7 @@ contract Queue {
     uint8 size = 5;
     address[] queue;
 
-    uint timeLimit = 2 minutes;
+    uint timeLimit;
     uint lastHeadTime;
 
     uint8 front;
@@ -23,14 +23,14 @@ contract Queue {
     event Dequeue(address adr);
     event LastTimeUpdated();
     event CheckPlace(uint _pos);
-    event SettingTime(uint _time, bool _empty);
     
 
     /* Add constructor */
-    function Queue() public {
+    function Queue(uint _timeGap) public {
         queue = new address[](0);
         front = 0;
         back = 0;
+        timeLimit = _timeGap * 1 minutes;
     }
 
     /* Returns the number of people waiting in line */
@@ -59,11 +59,9 @@ contract Queue {
     function checkPlace(address _address) public constant returns(uint8) {
         for (uint8 i = front; i < qsize() + front; i++) {
             if (_address == queue[i]) {
-                CheckPlace(i+1-front);
                 return i+1-front;
             }
         }
-        CheckPlace(0);
         return 0;
     }
 
@@ -107,7 +105,6 @@ contract Queue {
     /* Places `addr` in the first empty position in the queue */
     function enqueue(address addr) public returns (bool) {
         require(qsize() < 5);
-        SettingTime(now, empty());
         if (empty()) {
             lastHeadTime = now;
         }
