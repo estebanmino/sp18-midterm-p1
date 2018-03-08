@@ -10,13 +10,13 @@ contract('QueueTest', function(accounts) {
 	/* Define your constant variables and instantiate constantly changing 
 	 * ones
 	 */
-	const args = {_size: 5, _empty: false, _account3Position: 3};
+	const args = {_minutesGap: 1, _size: 5, _empty: false, _account3Position: 3};
 	let queue, account1, account2, account3, account4, account5, account6;
 	// YOUR CODE HERE
 
 	/* Do something before every `describe` method */
 	beforeEach(async function() {
-		queue = await Queue.new();
+		queue = await Queue.new(args._minutesGap);
 		account1 = accounts[0];
 		account2 = accounts[1];
 		account3 = accounts[2];
@@ -41,7 +41,8 @@ contract('QueueTest', function(accounts) {
 			.catch(() => cb());
 		});
 		it("Must have a time limit someone can keep their spot in the front; this prevents griefing.", async function() {
-			// YOUR CODE HERE
+			assert.isNotNull(queue.timeLimit, "Time Limt set.");
+
 		});
 		it("Must have qsize() method.", async function() {
 			let queueSize = await queue.qsize.call();
@@ -72,9 +73,9 @@ contract('QueueTest', function(accounts) {
 
 		});
 		it("Must have enqueue(address addr) method.", async function() {
-			//await queue.dequeue.call();
-			//let enqueue = await queue.enqueue(account1);
-			//assert.isNotNull(enqueue.valueOf(), "enqueue() works");
+			await queue.dequeue.call();
+			let enqueue = await queue.enqueue(account1);
+			assert.isTrue(enqueue, "enqueue() works");
 		});
 		it("The queue should only permit buyers to place an order if they are not the only ones in line," +
 			"i.e. if there is at least one person waiting behind them.", async function() {
