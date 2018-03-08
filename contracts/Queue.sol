@@ -11,8 +11,8 @@ contract Queue {
     /* State variables */
     uint8 size = 5;
     address[] queue;
-    uint timeLimit = 1 * 1 minutes; // minutes
-    uint lastHeadTime;
+    uint blockLimit = 5; // in terms of blocks created
+    uint lastHeadBlock = block.number;
     uint8 front;
     uint8 back;
 
@@ -20,7 +20,7 @@ contract Queue {
     event Enqueue(address adr, uint pos);
     event Dequeue(address adr);
     event LastTimeUpdated();
-    event CheckTime(uint from);
+    event CheckBlock(uint _blockLimit, uint _currentBlock, uint _lastHeadBlock);
 
     /* Add constructor */
     function Queue() public {
@@ -52,9 +52,9 @@ contract Queue {
     }
 
     /* Allows `msg.sender` to check their position in the queue */
-    function checkPlace() public constant returns(uint8) {
+    function checkPlace(address _address) public constant returns(uint8) {
         for (uint8 i = front; i < qsize() + front; i++) {
-            if (msg.sender == queue[i]) {
+            if (_address == queue[i]) {
                 return i+1-front;
             }
         }
@@ -65,11 +65,16 @@ contract Queue {
         * limit is up
         * returns true if dequeue() is executed
         */
+    // Checktime in terms of blocks created between transactions
+    // due to time problems
     function checkTime() public returns (bool) { 
-        require(!empty() && timeLimit < now - lastHeadTime);
-        CheckTime(now - lastHeadTime);
-        dequeue();
-        return true;
+        CheckBlock(blockLimit, block.number, lastHeadBlock);
+        if (!empty() && blockLimit < block.number - lastHeadBlock) {
+            dequeue();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /* Removes the first person in line; either when their time is up or when
@@ -81,7 +86,7 @@ contract Queue {
         delete queue[front];
         front += 1;
         if (!empty()) {
-            lastHeadTime = now;
+            lastHeadBlock = block.number;
         }
         LastTimeUpdated();
     }
@@ -92,9 +97,14 @@ contract Queue {
         back += 1;
         queue.push(addr);
         if (empty()) {
-            lastHeadTime = now;
+            lastHeadBlock = block.number;
         }
         Enqueue(addr, qsize());
         return true;
+    }
+    
+    function () public payable {
+        msg.sender.transfer(msg.value);
+        revert();
     }
 }

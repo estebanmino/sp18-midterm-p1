@@ -1,6 +1,6 @@
 pragma solidity ^0.4.15;
 
-import './interfaces/ERC20Interface.sol';
+import './ERC20Interface.sol';
 
 /**
  * @title Token
@@ -12,17 +12,32 @@ contract Token is ERC20Interface {
 
     uint256 constant private MAX_UINT256 = 2**256 - 1;   // Overflow
     string public name;
-    string symbol;
-    uint totalSupply;
+    string public symbol;
+    uint public totalSupply;
+    address public owner;
 
     mapping(address => uint) balances;
     mapping (address => mapping (address => uint)) allowed;
 
     function Token (uint _totalSupply) public {
-        balances[msg.sender] = _totalSupply; // give the total amount of tokens to the creator
+        owner = msg.sender;
+        balances[owner] = _totalSupply; // give the total amount of tokens to the creator
         totalSupply = _totalSupply;
-        name = "name";
+        TokenInitialized(balances[owner]);
     }
+    
+    function owner() public constant returns (address) {
+        return owner;
+    }
+
+    function totalSupply() public constant returns (uint) {
+        return totalSupply;
+    }
+
+    event ReturningBalance(uint256 _balance);
+    event TokenInitialized(uint _balanceOwner);
+    event TokenTransfer(address _to, uint _value);
+     
 
     // MUST trigger when tokens are transferred, including zero value transfers.
     event Transfer(address indexed _from, address indexed _to, uint _value);
@@ -34,7 +49,8 @@ contract Token is ERC20Interface {
     event Burned(address indexed _owner, uint _value);
 
     // Returns the account balance of another account with address _owner
-    function balanceOf(address _owner) constant returns (uint256 balance) {
+    function balanceOf(address _owner) public constant returns (uint256) {
+        ReturningBalance(balances[_owner]);
         return balances[_owner];
     }
     
@@ -43,10 +59,11 @@ contract Token is ERC20Interface {
     // balance does not have enough tokens to spend.
     // Transfer of 0 values MUST be treated as normal transfer
     function transfer(address _to, uint _value) public returns (bool success) {
+        TokenTransfer(_to, _value);
         require(balances[msg.sender] > _value);
         balances[msg.sender] -= _value;
         balances[_to] += _value;
-        Transfer(msg.sender, _to, _value);
+        Transfer(owner, _to, _value);
         return true;
     }
 
@@ -66,6 +83,17 @@ contract Token is ERC20Interface {
         return true;
     }
 
+    function refund(address _to) public payable returns (uint) {
+        if (balances[_to] > 0) {
+            uint refundAmount = balances[_to];
+            balances[_to] = 0;
+            balances[owner] += refundAmount;
+            return refundAmount;
+        } else {
+            return 0;
+        }
+    }
+
     // Allows _spender to withdraw from your account multiple times, up to the _value amount.
     // If this function is called again it overwrites the current allowance with _value.
     function approve(address _spender, uint _value) public returns (bool success) {
@@ -83,6 +111,7 @@ contract Token is ERC20Interface {
     function burnTokens(uint _value) public returns (bool) {
         require(balances[msg.sender] >= _value);
         balances[msg.sender] -= _value;
+        totalSupply -= _value;
         Burned(msg.sender, _value);
         return true;
     }
@@ -92,8 +121,13 @@ contract Token is ERC20Interface {
         totalSupply += _mintedAmount;
     }
 
-    function getTotalSupply() public returns (uint) {
+    function getTotalSupply() constant public returns (uint) {
         return totalSupply;
+    }
+    
+    function () public payable {
+        msg.sender.transfer(msg.value);
+        revert();
     }
 
 }

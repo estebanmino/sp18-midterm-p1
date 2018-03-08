@@ -15,11 +15,11 @@ contract Crowdsale {
     Queue queue;
     Token token;
     bool started;
-    uint startTime;
-    uint endTime;
+    uint gapBlock;
     uint pricePerWei;
     uint balance;
     uint tokensSold;
+    uint initialBlock;
 
     mapping(address => uint) amountToBuy;
 
@@ -32,22 +32,49 @@ contract Crowdsale {
     }
 
     event TokenDeployed(uint _totalSupply, address _token);
+    event BurnTokens(uint _burnedTokens);
+    event BlockGap(uint _initialBlock, uint _lastBlock);
+    event MoreThanTwoInQueue(uint _place);
+    event TryingToBuyFor(uint _i, uint _amount);
+    event DoingTransfer(bool _doingTransfer);
+    event CurrentTime(uint _blockNumber, uint _initialBlock, uint _blockGap);
+    event TryingToRefund(address _refundAddress, uint _refundAmount);
+    
 
     modifier onlyOwner {
         require(msg.sender == owner);
         _;
     }
 
+    modifier saleNotEnded {
+        require(block.number - initialBlock < gapBlock);
+        _;
+    }
 
-    function deployToken(uint _totalSupply, uint _endTime, uint _pricePerWei) public onlyOwner() {
+    modifier saleEnded() {
+        require(block.number - initialBlock > gapBlock);
+        _;
+    }
+
+    modifier inSaleTime() {
+        require(block.number - initialBlock < gapBlock && block.number > initialBlock);
+        _;
+    }
+
+    function getTokenTotalSupply() public constant returns (uint) {
+        return token.totalSupply();
+    }
+
+    function deployToken(uint _totalSupply, uint _gapBlock, uint _pricePerWei) public onlyOwner() {
         token = new Token(_totalSupply);
         TokenDeployed(_totalSupply, token);
         started = true;
-        startTime = now;
-        endTime = _endTime * 1 minutes;
+        // entime in terms of blocks
+        gapBlock = _gapBlock;
+        initialBlock = block.number;
         pricePerWei = _pricePerWei;
     }
-
+    
     // Creation of new tokens
     function mintTokens(uint _mintedAmount) public onlyOwner() {
         require(started);
@@ -58,6 +85,7 @@ contract Crowdsale {
     function burnTokens(uint _burnedTokens) public onlyOwner() {
         require(started);
         token.burnTokens(_burnedTokens);
+        BurnTokens(token.balanceOf(msg.sender));
     }
 
     // Must be able to receive funds from contract after the sale is over
@@ -65,24 +93,67 @@ contract Crowdsale {
         balance += msg.value;
     }
 
+    function refund() public payable inSaleTime() {
+        uint refundAmount = token.refund(msg.sender);
+        TryingToRefund(msg.sender, refundAmount);
+        tokensSold -= refundAmount;
+        msg.sender.transfer(refundAmount * pricePerWei);
+        balance -= refundAmount * pricePerWei;
+    }
+
+    function refundQueue() public saleEnded() {
+        address first = queue.getFirst();
+        TryingToRefund(first, amountToBuy[first]);
+        first.transfer(amountToBuy[first] * pricePerWei);
+        balance -= amountToBuy[first] * pricePerWei;
+    }
+
     // Buyers waiting in line must make sure they are not the last person 
     // in line: you must have someone behind you to place a token 
     
-    function buyTokens() public payable {
+    function buyTokens() public payable inSaleTime() {
         require(queue.enqueue(msg.sender));
         amountToBuy[msg.sender] = msg.value / pricePerWei;
-        uint place = queue.checkPlace();
+        uint place = queue.checkPlace(msg.sender);
         balance += msg.value;
-        // if first in queue, empty queue
-        if (place == 2 && !queue.checkTime()) {
-            // if second in queue
-            // buy tokens for first in queue
-            token.transfer(queue.getFirst(), amountToBuy[msg.sender]);
-            // else first deleted, wait for the next
+        // if first in queue, empty queue, do nothing
+
+        // if second in queue, try to buy the first, if pass the time delete it
+        // if third or more, try one and two...
+        if (place >= 2) {
+            MoreThanTwoInQueue(place);
+            for (uint i = 0; i < place-1; i++) {
+                TryingToBuyFor(i, amountToBuy[msg.sender]);
+                if (!queue.checkTime()) {
+                    DoingTransfer(true);
+                    token.transfer(queue.getFirst(), amountToBuy[queue.getFirst()]);    
+                    tokensSold += amountToBuy[queue.getFirst()];
+                    queue.dequeue();
+                } else {
+                    DoingTransfer(false);
+
+                }
+            }
         }
     }
 
-    function getTokenSupply() public returns (uint) {
-        return token.getTotalSupply();
+    function getMyBalance() public constant returns (uint256) {
+        require(started);        
+        return token.balanceOf(msg.sender);
     }
+
+
+    function getTokenOwner() public constant returns (address) {
+        return token.owner();
+    }
+
+    function getTokensSold() public constant returns (uint) {
+        return tokensSold;
+    }
+    
+    function () public payable {
+        msg.sender.transfer(msg.value);
+        revert();
+    }
+
 }
